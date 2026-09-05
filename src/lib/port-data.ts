@@ -273,6 +273,24 @@ export const initialEquipment: Equipment[] = [
   eq("rs-01", "Reach Stacker 01", "Reach Stacker", "livre", "terminal-cont", 55, 288, "RST-6601", "45 t", "Não alocado", "19/09/2026"),
 ];
 
+/** Distribui equipamentos dentro do setor para não sobrepor no mapa */
+export function spotInSector(sectorId: string, equipmentId: string) {
+  const s = sectorById.get(sectorId)!;
+  const peers = initialEquipment
+    .filter((e) => e.sectorId === sectorId)
+    .map((e) => e.id);
+  const i = Math.max(0, peers.indexOf(equipmentId));
+  const total = Math.max(1, peers.length);
+  const step = s.w / (total + 1);
+  return { x: s.x + step * (i + 1), y: s.y + s.h * 0.62 };
+}
+
+for (const e of initialEquipment) {
+  const p = spotInSector(e.sectorId, e.id);
+  e.x = p.x;
+  e.y = p.y;
+}
+
 export const equipmentTypes: EquipmentType[] = [
   "Caminhão Basculante",
   "Guindaste",
