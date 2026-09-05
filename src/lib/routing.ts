@@ -6,7 +6,7 @@ export interface RoutePlan {
   distance: number;
   minutes: number;
   blocked: boolean;
-  blockReason?: string;
+  blockReason?: string | undefined;
 }
 
 const dist = (a: string, b: string) => {
@@ -72,7 +72,7 @@ const SPEED_M_PER_MIN = (12 * 1000) / 60;
 
 function toPlan(path: string[], blocked: boolean, blockReason?: string): RoutePlan {
   let d = 0;
-  for (let i = 0; i < path.length - 1; i++) d += dist(path[i], path[i + 1]);
+  for (let i = 0; i < path.length - 1; i++) d += dist(path[i]!, path[i + 1]!);
   const meters = d * UNIT_TO_METERS;
   return {
     nodes: path,
@@ -103,7 +103,7 @@ export function findRoute(
   let idealUsesBlockage: Blockage | undefined;
   if (ideal) {
     for (let i = 0; i < ideal.length - 1; i++) {
-      const k = key(ideal[i], ideal[i + 1]);
+      const k = key(ideal[i]!, ideal[i + 1]!);
       const hit = blockages.find((b) => key(b.a, b.b) === k);
       if (hit) {
         idealUsesBlockage = hit;
