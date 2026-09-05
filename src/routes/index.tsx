@@ -54,7 +54,7 @@ function Dashboard() {
               <img
                 src={logo.url}
                 alt="InovaLog"
-                className="h-14 w-14 shrink-0 rounded-xl bg-foreground object-contain p-1.5"
+                className="h-14 w-14 shrink-0 rounded-xl object-contain"
               />
               <div className="min-w-0">
                 <p className="truncate text-lg font-bold">InovaLog</p>
