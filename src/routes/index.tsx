@@ -1,11 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowRight, Boxes, PackageCheck, Truck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Bell,
+  Boxes,
+  Map as MapIcon,
+  Navigation,
+  PackageCheck,
+  Truck,
+  Wrench,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Panel, Stat, StatusPill } from "@/components/bits";
 import { PortMap } from "@/components/PortMap";
 import { sectorById } from "@/lib/port-data";
 import { useSim } from "@/lib/simulation";
-import logo from "@/assets/inovalog-logo.jpg.asset.json";
+import logo from "@/assets/inovalog-logo-dark.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,7 +54,7 @@ function Dashboard() {
               <img
                 src={logo.url}
                 alt="InovaLog"
-                className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                className="h-14 w-14 shrink-0 rounded-xl bg-foreground object-contain p-1.5"
               />
               <div className="min-w-0">
                 <p className="truncate text-lg font-bold">InovaLog</p>
@@ -206,6 +217,54 @@ function Dashboard() {
                 </li>
               ))}
             </ul>
+          </Panel>
+
+          <Panel title="Acessos rápidos">
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                to="/relatorios"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <BarChart3 className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Relatórios</span>
+              </Link>
+              <Link
+                to="/manutencoes"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Wrench className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Manutenções</span>
+              </Link>
+              <Link
+                to="/notificacoes"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Bell className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Notificações</span>
+              </Link>
+              <Link
+                to="/solicitar"
+                search={{ equipamento: undefined }}
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Navigation className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Solicitar rota</span>
+              </Link>
+              <Link
+                to="/equipamentos"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Truck className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Equipamentos</span>
+              </Link>
+              <Link
+                to="/mapa"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <MapIcon className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Mapa interno</span>
+              </Link>
+            </div>
           </Panel>
         </div>
       </div>
