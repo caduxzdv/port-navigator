@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MapaRouteImport } from './routes/mapa'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as RotaRouteImport } from './routes/rota'
 import { Route as SolicitarRouteImport } from './routes/solicitar'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const MapaRoute = MapaRouteImport.update({
   id: '/mapa',
   path: '/mapa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RotaRoute = RotaRouteImport.update({
@@ -50,6 +56,7 @@ const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/mapa'
+    | '/notificacoes'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/mapa'
+    | '/notificacoes'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/mapa'
+    | '/notificacoes'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MapaRoute: typeof MapaRoute
+  NotificacoesRoute: typeof NotificacoesRoute
   RotaRoute: typeof RotaRoute
   SolicitarRoute: typeof SolicitarRoute
   EquipamentosIdRoute: typeof EquipamentosIdRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa'
       fullPath: '/mapa'
       preLoaderRoute: typeof MapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rota': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MapaRoute: MapaRoute,
+  NotificacoesRoute: NotificacoesRoute,
   RotaRoute: RotaRoute,
   SolicitarRoute: SolicitarRoute,
   EquipamentosIdRoute: EquipamentosIdRoute,
