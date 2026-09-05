@@ -1,5 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowRight, Boxes, PackageCheck, Truck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Bell,
+  Boxes,
+  Map as MapIcon,
+  Navigation,
+  PackageCheck,
+  Truck,
+  Wrench,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Panel, Stat, StatusPill } from "@/components/bits";
 import { PortMap } from "@/components/PortMap";
