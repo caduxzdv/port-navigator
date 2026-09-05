@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MaisRouteImport } from './routes/mais'
 import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RotaRouteImport } from './routes/rota'
 import { Route as SolicitarRouteImport } from './routes/solicitar'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
@@ -36,6 +37,11 @@ const MapaRoute = MapaRouteImport.update({
 const NotificacoesRoute = NotificacoesRouteImport.update({
   id: '/notificacoes',
   path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RotaRoute = RotaRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/mais': typeof MaisRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/mais': typeof MaisRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/mais': typeof MaisRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
   '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mapa'
     | '/notificacoes'
+    | '/relatorios'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mapa'
     | '/notificacoes'
+    | '/relatorios'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mapa'
     | '/notificacoes'
+    | '/relatorios'
     | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   MaisRoute: typeof MaisRoute
   MapaRoute: typeof MapaRoute
   NotificacoesRoute: typeof NotificacoesRoute
+  RelatoriosRoute: typeof RelatoriosRoute
   RotaRoute: typeof RotaRoute
   SolicitarRoute: typeof SolicitarRoute
   EquipamentosIdRoute: typeof EquipamentosIdRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/notificacoes'
       preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rota': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaisRoute: MaisRoute,
   MapaRoute: MapaRoute,
   NotificacoesRoute: NotificacoesRoute,
+  RelatoriosRoute: RelatoriosRoute,
   RotaRoute: RotaRoute,
   SolicitarRoute: SolicitarRoute,
   EquipamentosIdRoute: EquipamentosIdRoute,
