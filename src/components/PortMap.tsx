@@ -98,12 +98,11 @@ export function PortMap({
         drag.current = { x: e.clientX, y: e.clientY, ox: view.x, oy: view.y };
       }}
       onPointerMove={(e) => {
-        if (!drag.current) return;
-        setView((v) => ({
-          ...v,
-          x: drag.current!.ox + (e.clientX - drag.current!.x),
-          y: drag.current!.oy + (e.clientY - drag.current!.y),
-        }));
+        const d = drag.current;
+        if (!d) return;
+        const dx = e.clientX - d.x;
+        const dy = e.clientY - d.y;
+        setView((v) => ({ ...v, x: d.ox + dx, y: d.oy + dy }));
       }}
       onPointerUp={() => (drag.current = null)}
       onPointerLeave={() => (drag.current = null)}
