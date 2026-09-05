@@ -158,7 +158,7 @@ function Dashboard() {
             {activeRoutes.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Nenhuma rota em andamento.{" "}
-                <Link to="/solicitar" className="text-primary">
+                <Link to="/solicitar" search={{ equipamento: undefined }} className="text-primary">
                   Solicitar equipamento
                 </Link>
               </p>

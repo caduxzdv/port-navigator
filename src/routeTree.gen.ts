@@ -10,7 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MaisRouteImport } from './routes/mais'
+import { Route as ManutencoesRouteImport } from './routes/manutencoes'
 import { Route as MapaRouteImport } from './routes/mapa'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as RotaRouteImport } from './routes/rota'
 import { Route as SolicitarRouteImport } from './routes/solicitar'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
 import { Route as EquipamentosIdRouteImport } from './routes/equipamentos.$id'
@@ -20,9 +25,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaisRoute = MaisRouteImport.update({
+  id: '/mais',
+  path: '/mais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesRoute = ManutencoesRouteImport.update({
+  id: '/manutencoes',
+  path: '/manutencoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MapaRoute = MapaRouteImport.update({
   id: '/mapa',
   path: '/mapa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RotaRoute = RotaRouteImport.update({
+  id: '/rota',
+  path: '/rota',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SolicitarRoute = SolicitarRouteImport.update({
@@ -43,14 +73,24 @@ const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos': typeof EquipamentosIndexRoute
@@ -58,7 +98,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/rota': typeof RotaRoute
   '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
@@ -66,13 +111,37 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/mapa' | '/solicitar' | '/equipamentos/$id' | '/equipamentos/'
+    | '/'
+    | '/mais'
+    | '/manutencoes'
+    | '/mapa'
+    | '/notificacoes'
+    | '/relatorios'
+    | '/rota'
+    | '/solicitar'
+    | '/equipamentos/$id'
+    | '/equipamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mapa' | '/solicitar' | '/equipamentos/$id' | '/equipamentos'
+  to:
+    | '/'
+    | '/mais'
+    | '/manutencoes'
+    | '/mapa'
+    | '/notificacoes'
+    | '/relatorios'
+    | '/rota'
+    | '/solicitar'
+    | '/equipamentos/$id'
+    | '/equipamentos'
   id:
     | '__root__'
     | '/'
+    | '/mais'
+    | '/manutencoes'
     | '/mapa'
+    | '/notificacoes'
+    | '/relatorios'
+    | '/rota'
     | '/solicitar'
     | '/equipamentos/$id'
     | '/equipamentos/'
@@ -80,7 +149,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MaisRoute: typeof MaisRoute
+  ManutencoesRoute: typeof ManutencoesRoute
   MapaRoute: typeof MapaRoute
+  NotificacoesRoute: typeof NotificacoesRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  RotaRoute: typeof RotaRoute
   SolicitarRoute: typeof SolicitarRoute
   EquipamentosIdRoute: typeof EquipamentosIdRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
@@ -95,11 +169,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mais': {
+      id: '/mais'
+      path: '/mais'
+      fullPath: '/mais'
+      preLoaderRoute: typeof MaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes': {
+      id: '/manutencoes'
+      path: '/manutencoes'
+      fullPath: '/manutencoes'
+      preLoaderRoute: typeof ManutencoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mapa': {
       id: '/mapa'
       path: '/mapa'
       fullPath: '/mapa'
       preLoaderRoute: typeof MapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rota': {
+      id: '/rota'
+      path: '/rota'
+      fullPath: '/rota'
+      preLoaderRoute: typeof RotaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/solicitar': {
@@ -128,7 +237,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MaisRoute: MaisRoute,
+  ManutencoesRoute: ManutencoesRoute,
   MapaRoute: MapaRoute,
+  NotificacoesRoute: NotificacoesRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  RotaRoute: RotaRoute,
   SolicitarRoute: SolicitarRoute,
   EquipamentosIdRoute: EquipamentosIdRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
