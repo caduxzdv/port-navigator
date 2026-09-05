@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MapaRouteImport } from './routes/mapa'
+import { Route as SolicitarRouteImport } from './routes/solicitar'
 import { Route as EquipamentosIndexRouteImport } from './routes/equipamentos.index'
 import { Route as EquipamentosIdRouteImport } from './routes/equipamentos.$id'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const MapaRoute = MapaRouteImport.update({
   id: '/mapa',
   path: '/mapa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolicitarRoute = SolicitarRouteImport.update({
+  id: '/solicitar',
+  path: '/solicitar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EquipamentosIndexRoute = EquipamentosIndexRouteImport.update({
@@ -38,12 +44,14 @@ const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos': typeof EquipamentosIndexRoute
 }
@@ -51,20 +59,29 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mapa': typeof MapaRoute
+  '/solicitar': typeof SolicitarRoute
   '/equipamentos/$id': typeof EquipamentosIdRoute
   '/equipamentos/': typeof EquipamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mapa' | '/equipamentos/$id' | '/equipamentos/'
+  fullPaths:
+    '/' | '/mapa' | '/solicitar' | '/equipamentos/$id' | '/equipamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mapa' | '/equipamentos/$id' | '/equipamentos'
-  id: '__root__' | '/' | '/mapa' | '/equipamentos/$id' | '/equipamentos/'
+  to: '/' | '/mapa' | '/solicitar' | '/equipamentos/$id' | '/equipamentos'
+  id:
+    | '__root__'
+    | '/'
+    | '/mapa'
+    | '/solicitar'
+    | '/equipamentos/$id'
+    | '/equipamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MapaRoute: typeof MapaRoute
+  SolicitarRoute: typeof SolicitarRoute
   EquipamentosIdRoute: typeof EquipamentosIdRoute
   EquipamentosIndexRoute: typeof EquipamentosIndexRoute
 }
@@ -83,6 +100,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa'
       fullPath: '/mapa'
       preLoaderRoute: typeof MapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solicitar': {
+      id: '/solicitar'
+      path: '/solicitar'
+      fullPath: '/solicitar'
+      preLoaderRoute: typeof SolicitarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/equipamentos/': {
@@ -105,6 +129,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MapaRoute: MapaRoute,
+  SolicitarRoute: SolicitarRoute,
   EquipamentosIdRoute: EquipamentosIdRoute,
   EquipamentosIndexRoute: EquipamentosIndexRoute,
 }
