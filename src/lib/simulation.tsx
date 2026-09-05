@@ -13,6 +13,7 @@ import {
   initialEquipment,
   initialMaintenance,
   sectorById,
+  spotInSector,
   type Blockage,
   type Equipment,
   type EquipmentStatus,
@@ -185,7 +186,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           const r = routesRef.current.find((x) => x.equipmentId === e.id);
           const done = finished.find((x) => x.equipmentId === e.id);
           if (done) {
-            const s = sectorById.get(done.toSectorId)!;
+            const p = spotInSector(done.toSectorId, e.id);
             return {
               ...e,
               status: "livre" as EquipmentStatus,
@@ -193,8 +194,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
               operator: "Não alocado",
               fuel: Math.max(5, e.fuel - 4),
               hours: e.hours + 1,
-              x: s.x + s.w / 2,
-              y: s.y + s.h / 2,
+              x: p.x,
+              y: p.y,
             };
           }
           if (r) {
@@ -286,13 +287,13 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         setEquipment((eqs) =>
           eqs.map((e) => {
             if (e.id !== r.equipmentId) return e;
-            const s = sectorById.get(r.fromSectorId)!;
+            const p = spotInSector(r.fromSectorId, e.id);
             return {
               ...e,
               status: "livre" as EquipmentStatus,
               operator: "Não alocado",
-              x: s.x + s.w / 2,
-              y: s.y + s.h / 2,
+              x: p.x,
+              y: p.y,
             };
           }),
         );
