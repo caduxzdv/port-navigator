@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MaisRouteImport } from './routes/mais'
+import { Route as ManutencoesRouteImport } from './routes/manutencoes'
 import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const MaisRoute = MaisRouteImport.update({
   id: '/mais',
   path: '/mais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencoesRoute = ManutencoesRouteImport.update({
+  id: '/manutencoes',
+  path: '/manutencoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapaRoute = MapaRouteImport.update({
@@ -68,6 +74,7 @@ const EquipamentosIdRoute = EquipamentosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
   '/relatorios': typeof RelatoriosRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
   '/relatorios': typeof RelatoriosRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mais': typeof MaisRoute
+  '/manutencoes': typeof ManutencoesRoute
   '/mapa': typeof MapaRoute
   '/notificacoes': typeof NotificacoesRoute
   '/relatorios': typeof RelatoriosRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/mais'
+    | '/manutencoes'
     | '/mapa'
     | '/notificacoes'
     | '/relatorios'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/mais'
+    | '/manutencoes'
     | '/mapa'
     | '/notificacoes'
     | '/relatorios'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/mais'
+    | '/manutencoes'
     | '/mapa'
     | '/notificacoes'
     | '/relatorios'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MaisRoute: typeof MaisRoute
+  ManutencoesRoute: typeof ManutencoesRoute
   MapaRoute: typeof MapaRoute
   NotificacoesRoute: typeof NotificacoesRoute
   RelatoriosRoute: typeof RelatoriosRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/mais'
       fullPath: '/mais'
       preLoaderRoute: typeof MaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencoes': {
+      id: '/manutencoes'
+      path: '/manutencoes'
+      fullPath: '/manutencoes'
+      preLoaderRoute: typeof ManutencoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mapa': {
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MaisRoute: MaisRoute,
+  ManutencoesRoute: ManutencoesRoute,
   MapaRoute: MapaRoute,
   NotificacoesRoute: NotificacoesRoute,
   RelatoriosRoute: RelatoriosRoute,

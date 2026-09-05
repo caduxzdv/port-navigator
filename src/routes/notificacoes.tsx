@@ -40,10 +40,6 @@ const icons: Record<NotificationKind, typeof BellRing> = {
   combustivel: Fuel,
 };
 
-export default function _unused() {
-  return null;
-}
-
 function NotificacoesPage() {
   const { notifications, markAllRead } = useSim();
 
