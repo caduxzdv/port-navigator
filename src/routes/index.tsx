@@ -207,6 +207,54 @@ function Dashboard() {
               ))}
             </ul>
           </Panel>
+
+          <Panel title="Acessos rápidos">
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                to="/relatorios"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <BarChart3 className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Relatórios</span>
+              </Link>
+              <Link
+                to="/manutencoes"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Wrench className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Manutenções</span>
+              </Link>
+              <Link
+                to="/notificacoes"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Bell className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Notificações</span>
+              </Link>
+              <Link
+                to="/solicitar"
+                search={{ equipamento: undefined }}
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Navigation className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Solicitar rota</span>
+              </Link>
+              <Link
+                to="/equipamentos"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <Truck className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Equipamentos</span>
+              </Link>
+              <Link
+                to="/mapa"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+              >
+                <MapIcon className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">Mapa interno</span>
+              </Link>
+            </div>
+          </Panel>
         </div>
       </div>
     </AppShell>
