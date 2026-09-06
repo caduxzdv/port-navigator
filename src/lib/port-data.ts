@@ -204,22 +204,38 @@ export const initialEquipment: Equipment[] = [
   eq("rs-01", "Reach Stacker 01", "Reach Stacker", "livre", "terminal-cont", 55, 288, "RST-6601", "45 t", "Não alocado", "19/09/2026"),
 ];
 
-/** Distribui equipamentos dentro do setor para não sobrepor no mapa */
-export function spotInSector(sectorId: string, equipmentId: string) {
-  const s = sectorById.get(sectorId)!;
-  const peers = initialEquipment
-    .filter((e) => e.sectorId === sectorId)
-    .map((e) => e.id);
-  const i = Math.max(0, peers.indexOf(equipmentId));
-  const total = Math.max(1, peers.length);
-  const step = s.w / (total + 1);
-  return { x: s.x + step * (i + 1), y: s.y + s.h * 0.62 };
+/**
+ * Distribui os equipamentos parados dentro de cada setor, lado a lado,
+ * para que os marcadores não se sobreponham no mapa. Equipamentos em
+ * movimento (ids em `moving`) mantêm a posição atual.
+ */
+export function layoutIdle(eqs: Equipment[], moving: Set<string>): Equipment[] {
+  const groups = new Map<string, Equipment[]>();
+  for (const e of eqs) {
+    if (moving.has(e.id)) continue;
+    if (!groups.has(e.sectorId)) groups.set(e.sectorId, []);
+    groups.get(e.sectorId)!.push(e);
+  }
+  const pos = new Map<string, { x: number; y: number }>();
+  for (const [sid, list] of groups) {
+    const s = sectorById.get(sid);
+    if (!s) continue;
+    list.sort((a, b) => a.id.localeCompare(b.id));
+    const step = s.w / (list.length + 1);
+    const y = s.kind === "cais" ? s.y + s.h * 0.55 : s.y + s.h * 0.64;
+    list.forEach((e, i) => pos.set(e.id, { x: Math.round(s.x + step * (i + 1)), y }));
+  }
+  return eqs.map((e) => {
+    const p = pos.get(e.id);
+    if (!p || (p.x === e.x && p.y === e.y && e.heading === undefined)) return e;
+    return { ...e, x: p.x, y: p.y, heading: undefined };
+  });
 }
 
-for (const e of initialEquipment) {
-  const p = spotInSector(e.sectorId, e.id);
-  e.x = p.x;
-  e.y = p.y;
+for (const e of layoutIdle(initialEquipment, new Set())) {
+  const target = initialEquipment.find((x) => x.id === e.id)!;
+  target.x = e.x;
+  target.y = e.y;
 }
 
 export const equipmentTypes: EquipmentType[] = [

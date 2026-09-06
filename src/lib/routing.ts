@@ -70,21 +70,35 @@ function dijkstra(from: string, to: string, blockedKeys: Set<string>): string[] 
 export const UNIT_TO_METERS = 1.2;
 const SPEED_M_PER_MIN = (12 * 1000) / 60;
 
-function toPlan(path: string[], blocked: boolean, blockReason?: string): RoutePlan {
+type Pt = { x: number; y: number };
+
+function measure(points: Pt[]) {
   let d = 0;
-  for (let i = 0; i < path.length - 1; i++) d += dist(path[i]!, path[i + 1]!);
+  for (let i = 0; i < points.length - 1; i++)
+    d += Math.hypot(points[i + 1]!.x - points[i]!.x, points[i + 1]!.y - points[i]!.y);
   const meters = d * UNIT_TO_METERS;
   return {
-    nodes: path,
-    points: path.map((id) => {
-      const n = nodeById.get(id)!;
-      return { x: n.x, y: n.y };
-    }),
     distance: Math.round(meters),
     minutes: Math.max(1, Math.round(meters / SPEED_M_PER_MIN)),
-    blocked,
-    blockReason,
   };
+}
+
+function toPlan(path: string[], blocked: boolean, blockReason?: string): RoutePlan {
+  const points = path.map((id) => {
+    const n = nodeById.get(id)!;
+    return { x: n.x, y: n.y };
+  });
+  return { nodes: path, points, ...measure(points), blocked, blockReason };
+}
+
+/**
+ * Substitui o ponto inicial da rota pela posição real do equipamento,
+ * recalculando distância e tempo.
+ */
+export function withStart(plan: RoutePlan, start: Pt): RoutePlan {
+  const rest = plan.points.length >= 2 ? plan.points.slice(1) : plan.points;
+  const points = [start, ...rest];
+  return { ...plan, points, ...measure(points) };
 }
 
 /**
