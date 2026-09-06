@@ -8,10 +8,20 @@ export type EquipmentType =
 
 export type EquipmentStatus = "livre" | "em-uso" | "manutencao";
 
+export type SectorKind =
+  | "cais"
+  | "patio"
+  | "armazem"
+  | "descarga"
+  | "conteineres"
+  | "oficina"
+  | "portaria";
+
 export interface Sector {
   id: string;
   name: string;
   short: string;
+  kind: SectorKind;
   x: number;
   y: number;
   w: number;
@@ -52,6 +62,8 @@ export interface Equipment {
   nextMaintenance: string;
   x: number;
   y: number;
+  /** direção (graus) enquanto se move; undefined quando parado */
+  heading?: number | undefined;
 }
 
 /** Planta interna fictícia do porto — espaço 1000 x 700 */
