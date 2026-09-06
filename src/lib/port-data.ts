@@ -8,10 +8,20 @@ export type EquipmentType =
 
 export type EquipmentStatus = "livre" | "em-uso" | "manutencao";
 
+export type SectorKind =
+  | "cais"
+  | "patio"
+  | "armazem"
+  | "descarga"
+  | "conteineres"
+  | "oficina"
+  | "portaria";
+
 export interface Sector {
   id: string;
   name: string;
   short: string;
+  kind: SectorKind;
   x: number;
   y: number;
   w: number;
@@ -52,6 +62,8 @@ export interface Equipment {
   nextMaintenance: string;
   x: number;
   y: number;
+  /** direção (graus) enquanto se move; undefined quando parado */
+  heading?: number | undefined;
 }
 
 /** Planta interna fictícia do porto — espaço 1000 x 700 */
@@ -69,96 +81,15 @@ for (const x of XS) {
 }
 
 export const sectors: Sector[] = [
-  {
-    id: "cais-norte",
-    name: "Cais Norte",
-    short: "Cais",
-    x: 60,
-    y: 24,
-    w: 880,
-    h: 62,
-    node: "n-cais-norte",
-  },
-  {
-    id: "patio-areia",
-    name: "Pátio de Areia",
-    short: "Areia",
-    x: 30,
-    y: 160,
-    w: 200,
-    h: 130,
-    node: "n-patio-areia",
-  },
-  {
-    id: "patio-brita",
-    name: "Pátio de Brita",
-    short: "Brita",
-    x: 30,
-    y: 400,
-    w: 200,
-    h: 130,
-    node: "n-patio-brita",
-  },
-  {
-    id: "armazem-1",
-    name: "Armazém 1",
-    short: "Arm. 1",
-    x: 290,
-    y: 160,
-    w: 180,
-    h: 130,
-    node: "n-armazem-1",
-  },
-  {
-    id: "armazem-2",
-    name: "Armazém 2",
-    short: "Arm. 2",
-    x: 290,
-    y: 400,
-    w: 180,
-    h: 130,
-    node: "n-armazem-2",
-  },
-  {
-    id: "setor-b",
-    name: "Setor B - Área de Descarga",
-    short: "Setor B",
-    x: 545,
-    y: 160,
-    w: 210,
-    h: 130,
-    node: "n-setor-b",
-  },
-  {
-    id: "terminal-cont",
-    name: "Terminal de Contêineres",
-    short: "Contêineres",
-    x: 545,
-    y: 400,
-    w: 260,
-    h: 130,
-    node: "n-terminal-cont",
-  },
-  {
-    id: "oficina",
-    name: "Oficina",
-    short: "Oficina",
-    x: 830,
-    y: 160,
-    w: 140,
-    h: 130,
-    node: "n-oficina",
-  },
-  {
-    id: "portaria",
-    name: "Portaria e Balança",
-    short: "Portaria",
-    x: 790,
-    y: 600,
-    w: 180,
-    h: 80,
-    node: "n-portaria",
-  },
+  { id: "cais-norte", name: "Cais Norte", short: "Cais", kind: "cais", x: 60, y: 38, w: 880, h: 58, node: "n-cais-norte" },
+  { id: "patio-areia", name: "Pátio de Areia", short: "Areia", kind: "patio", x: 30, y: 160, w: 200, h: 130, node: "n-patio-areia" },
+  { id: "patio-brita", name: "Pátio de Brita", short: "Brita", kind: "patio", x: 30, y: 400, w: 200, h: 130, node: "n-patio-brita" },
+  { id: "armazem-1", name: "Armazém 1", short: "Arm. 1", kind: "armazem", x: 290, y: 160, w: 180, h: 130, node: "n-armazem-1" },
+  { id: "armazem-2", name: "Armazém 2", short: "Arm. 2", kind: "armazem", x: 290, y: 400, w: 180, h: 130, node: "n-armazem-2" },
+  { id: "setor-b", name: "Setor B - Área de Descarga", short: "Setor B", kind: "descarga", x: 545, y: 160, w: 210, h: 130, node: "n-setor-b" },
+  { id: "terminal-cont", name: "Terminal de Contêineres", short: "Contêineres", kind: "conteineres", x: 545, y: 400, w: 260, h: 130, node: "n-terminal-cont" },
+  { id: "oficina", name: "Oficina", short: "Oficina", kind: "oficina", x: 830, y: 160, w: 140, h: 130, node: "n-oficina" },
+  { id: "portaria", name: "Portaria e Balança", short: "Portaria", kind: "portaria", x: 790, y: 600, w: 180, h: 80, node: "n-portaria" },
 ];
 
 for (const s of sectors) {
@@ -273,22 +204,38 @@ export const initialEquipment: Equipment[] = [
   eq("rs-01", "Reach Stacker 01", "Reach Stacker", "livre", "terminal-cont", 55, 288, "RST-6601", "45 t", "Não alocado", "19/09/2026"),
 ];
 
-/** Distribui equipamentos dentro do setor para não sobrepor no mapa */
-export function spotInSector(sectorId: string, equipmentId: string) {
-  const s = sectorById.get(sectorId)!;
-  const peers = initialEquipment
-    .filter((e) => e.sectorId === sectorId)
-    .map((e) => e.id);
-  const i = Math.max(0, peers.indexOf(equipmentId));
-  const total = Math.max(1, peers.length);
-  const step = s.w / (total + 1);
-  return { x: s.x + step * (i + 1), y: s.y + s.h * 0.62 };
+/**
+ * Distribui os equipamentos parados dentro de cada setor, lado a lado,
+ * para que os marcadores não se sobreponham no mapa. Equipamentos em
+ * movimento (ids em `moving`) mantêm a posição atual.
+ */
+export function layoutIdle(eqs: Equipment[], moving: Set<string>): Equipment[] {
+  const groups = new Map<string, Equipment[]>();
+  for (const e of eqs) {
+    if (moving.has(e.id)) continue;
+    if (!groups.has(e.sectorId)) groups.set(e.sectorId, []);
+    groups.get(e.sectorId)!.push(e);
+  }
+  const pos = new Map<string, { x: number; y: number }>();
+  for (const [sid, list] of groups) {
+    const s = sectorById.get(sid);
+    if (!s) continue;
+    list.sort((a, b) => a.id.localeCompare(b.id));
+    const step = s.w / (list.length + 1);
+    const y = s.kind === "cais" ? s.y + s.h * 0.55 : s.y + s.h * 0.64;
+    list.forEach((e, i) => pos.set(e.id, { x: Math.round(s.x + step * (i + 1)), y }));
+  }
+  return eqs.map((e) => {
+    const p = pos.get(e.id);
+    if (!p || (p.x === e.x && p.y === e.y && e.heading === undefined)) return e;
+    return { ...e, x: p.x, y: p.y, heading: undefined };
+  });
 }
 
-for (const e of initialEquipment) {
-  const p = spotInSector(e.sectorId, e.id);
-  e.x = p.x;
-  e.y = p.y;
+for (const e of layoutIdle(initialEquipment, new Set())) {
+  const target = initialEquipment.find((x) => x.id === e.id)!;
+  target.x = e.x;
+  target.y = e.y;
 }
 
 export const equipmentTypes: EquipmentType[] = [

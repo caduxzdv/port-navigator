@@ -12,14 +12,17 @@ import {
   initialBlockages,
   initialEquipment,
   initialMaintenance,
+  layoutIdle,
+  nodeById,
   sectorById,
-  spotInSector,
+  sectors,
   type Blockage,
   type Equipment,
   type EquipmentStatus,
   type MaintenanceItem,
+  type Sector,
 } from "./port-data";
-import { findRoute, type RoutePlan } from "./routing";
+import { findRoute, withStart, type RoutePlan } from "./routing";
 
 export type NotificationKind =
   | "disponibilidade"
@@ -51,6 +54,9 @@ export interface RouteSuggestion {
 export interface ActiveRoute extends RouteSuggestion {
   id: string;
   progress: number; // 0..1
+  durationMs: number;
+  /** tráfego de fundo da simulação (não iniciado pelo usuário) */
+  background: boolean;
 }
 
 interface SimContextValue {
@@ -60,6 +66,10 @@ interface SimContextValue {
   maintenance: MaintenanceItem[];
   activeRoutes: ActiveRoute[];
   suggestion: RouteSuggestion | null;
+  /** rota iniciada pelo usuário que está sendo acompanhada */
+  focusRoute: ActiveRoute | undefined;
+  /** última rota do usuário concluída (para a tela de rota) */
+  lastCompleted: ActiveRoute | null;
   planRoute: (input: {
     equipmentId?: string;
     type?: string;
@@ -70,11 +80,16 @@ interface SimContextValue {
   startRoute: () => string | null;
   cancelRoute: (id: string) => void;
   clearSuggestion: () => void;
+  dismissCompleted: () => void;
   markAllRead: () => void;
   routeOf: (equipmentId: string) => ActiveRoute | undefined;
 }
 
 const SimContext = createContext<SimContextValue | null>(null);
+
+const TICK_MS = 500;
+/** 1 minuto de rota ≈ 4 s reais, mínimo de 12 s para dar tempo de acompanhar */
+const durationFor = (plan: RoutePlan) => Math.max(12000, plan.minutes * 4000);
 
 const now = () =>
   new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -82,16 +97,15 @@ const now = () =>
 let seq = 0;
 const uid = (p: string) => `${p}-${Date.now()}-${seq++}`;
 
-function pointAt(points: { x: number; y: number }[], t: number) {
+type Pt = { x: number; y: number };
+
+function pointAt(points: Pt[], t: number): Pt {
   if (points.length === 0) return { x: 0, y: 0 };
   if (points.length === 1) return points[0]!;
   const lens: number[] = [];
   let total = 0;
   for (let i = 0; i < points.length - 1; i++) {
-    const l = Math.hypot(
-      points[i + 1]!.x - points[i]!.x,
-      points[i + 1]!.y - points[i]!.y,
-    );
+    const l = Math.hypot(points[i + 1]!.x - points[i]!.x, points[i + 1]!.y - points[i]!.y);
     lens.push(l);
     total += l;
   }
@@ -107,6 +121,46 @@ function pointAt(points: { x: number; y: number }[], t: number) {
     target -= lens[i]!;
   }
   return points[points.length - 1]!;
+}
+
+function headingAt(points: Pt[], t: number): number {
+  const a = pointAt(points, t);
+  const b = pointAt(points, Math.min(1, t + 0.02));
+  if (a.x === b.x && a.y === b.y) return 0;
+  return (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+}
+
+/** Plano de rota a partir da posição real do equipamento até o centro do setor destino */
+function buildPlan(e: Pick<Equipment, "sectorId" | "x" | "y">, destination: Sector, blockages: Blockage[]) {
+  const from = sectorById.get(e.sectorId);
+  if (!from) return null;
+  const base = findRoute(from.node, destination.node, blockages);
+  if (!base) return null;
+  return withStart(base, { x: e.x, y: e.y });
+}
+
+function makeBackgroundRoute(
+  e: Pick<Equipment, "id" | "sectorId" | "x" | "y">,
+  toSectorId: string,
+  blockages: Blockage[],
+  id = uid("bg"),
+): ActiveRoute | null {
+  const dest = sectorById.get(toSectorId);
+  if (!dest) return null;
+  const plan = buildPlan(e, dest, blockages);
+  if (!plan) return null;
+  return {
+    id,
+    equipmentId: e.id,
+    fromSectorId: e.sectorId,
+    toSectorId,
+    activity: "Operação de rotina",
+    notes: "",
+    plan,
+    progress: 0,
+    durationMs: durationFor(plan),
+    background: true,
+  };
 }
 
 const initialNotifications: AppNotification[] = [
@@ -148,77 +202,130 @@ const initialNotifications: AppNotification[] = [
   },
 ];
 
+/** Tráfego de fundo determinístico (igual no servidor e no cliente) */
+function seedRoutes(): ActiveRoute[] {
+  const out: ActiveRoute[] = [];
+  const seeds: [string, string, string][] = [
+    ["cam-01", "terminal-cont", "bg-1"],
+    ["cam-03", "portaria", "bg-2"],
+  ];
+  for (const [eqId, to, id] of seeds) {
+    const e = initialEquipment.find((x) => x.id === eqId);
+    if (!e) continue;
+    const r = makeBackgroundRoute(e, to, initialBlockages, id);
+    if (r) out.push(r);
+  }
+  return out;
+}
+
 export function SimulationProvider({ children }: { children: ReactNode }) {
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
   const [blockages] = useState<Blockage[]>(initialBlockages);
   const [maintenance] = useState<MaintenanceItem[]>(initialMaintenance);
-  const [notifications, setNotifications] =
-    useState<AppNotification[]>(initialNotifications);
-  const [activeRoutes, setActiveRoutes] = useState<ActiveRoute[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>(initialNotifications);
+  const [activeRoutes, setActiveRoutes] = useState<ActiveRoute[]>(seedRoutes);
   const [suggestion, setSuggestion] = useState<RouteSuggestion | null>(null);
-  const routesRef = useRef(activeRoutes);
-  routesRef.current = activeRoutes;
+  const [focusRouteId, setFocusRouteId] = useState<string | null>(null);
+  const [lastCompleted, setLastCompleted] = useState<ActiveRoute | null>(null);
 
-  const notify = useCallback((n: Omit<AppNotification, "id" | "time" | "read">) => {
-    setNotifications((prev) => [
-      { ...n, id: uid("n"), time: now(), read: false },
-      ...prev,
-    ]);
+  const routesRef = useRef<ActiveRoute[]>(activeRoutes);
+  const blockagesRef = useRef(blockages);
+  blockagesRef.current = blockages;
+
+  const commitRoutes = useCallback((next: ActiveRoute[]) => {
+    routesRef.current = next;
+    setActiveRoutes(next);
   }, []);
 
-  // tick da simulação: 1 minuto de rota = 2 segundos reais
+  const notify = useCallback((n: Omit<AppNotification, "id" | "time" | "read">) => {
+    setNotifications((prev) => [{ ...n, id: uid("n"), time: now(), read: false }, ...prev]);
+  }, []);
+
+  // tick da simulação
   useEffect(() => {
     const t = setInterval(() => {
-      const finished: ActiveRoute[] = [];
-      setActiveRoutes((prev) => {
-        const next: ActiveRoute[] = [];
-        for (const r of prev) {
-          const step = 1 / Math.max(1, r.plan.minutes * 2);
-          const progress = r.progress + step;
-          if (progress >= 1) finished.push(r);
-          else next.push({ ...r, progress });
-        }
-        return next;
-      });
+      const prev = routesRef.current;
+      if (prev.length === 0) return;
 
-      setEquipment((prev) =>
-        prev.map((e) => {
-          const r = routesRef.current.find((x) => x.equipmentId === e.id);
-          const done = finished.find((x) => x.equipmentId === e.id);
-          if (done) {
-            const p = spotInSector(done.toSectorId, e.id);
+      const next: ActiveRoute[] = [];
+      const finished: ActiveRoute[] = [];
+      for (const r of prev) {
+        const progress = r.progress + TICK_MS / r.durationMs;
+        if (progress >= 1) finished.push(r);
+        else next.push({ ...r, progress });
+      }
+
+      // tráfego de fundo continua para outro setor
+      for (const f of finished) {
+        if (!f.background) continue;
+        const candidates = sectors.filter((s) => s.id !== f.toSectorId && s.kind !== "oficina");
+        const dest = candidates[Math.floor(Math.random() * candidates.length)]!;
+        const end = f.plan.points[f.plan.points.length - 1] ?? nodeById.get(dest.node)!;
+        const r = makeBackgroundRoute(
+          { id: f.equipmentId, sectorId: f.toSectorId, x: end.x, y: end.y },
+          dest.id,
+          blockagesRef.current,
+        );
+        if (r) next.push(r);
+      }
+
+      commitRoutes(next);
+
+      const routeBy = new Map(next.map((r) => [r.equipmentId, r]));
+      const doneBy = new Map(finished.filter((f) => !f.background).map((f) => [f.equipmentId, f]));
+
+      setEquipment((eqs) => {
+        const moved = eqs.map((e) => {
+          const r = routeBy.get(e.id);
+          if (r) {
+            const p = pointAt(r.plan.points, r.progress);
+            return {
+              ...e,
+              status: "em-uso" as EquipmentStatus,
+              sectorId: r.fromSectorId,
+              x: p.x,
+              y: p.y,
+              heading: headingAt(r.plan.points, r.progress),
+            };
+          }
+          const d = doneBy.get(e.id);
+          if (d) {
             return {
               ...e,
               status: "livre" as EquipmentStatus,
-              sectorId: done.toSectorId,
+              sectorId: d.toSectorId,
               operator: "Não alocado",
               fuel: Math.max(5, e.fuel - 4),
               hours: e.hours + 1,
-              x: p.x,
-              y: p.y,
+              heading: undefined,
             };
           }
-          if (r) {
-            const p = pointAt(r.plan.points, r.progress);
-            return { ...e, x: p.x, y: p.y };
-          }
           return e;
-        }),
-      );
+        });
+        return finished.length > 0 ? layoutIdle(moved, new Set(routeBy.keys())) : moved;
+      });
 
       for (const f of finished) {
-        const eqName =
-          initialEquipment.find((e) => e.id === f.equipmentId)?.name ?? "Equipamento";
+        if (f.background) continue;
+        const eqName = initialEquipment.find((e) => e.id === f.equipmentId)?.name ?? "Equipamento";
+        const dest = sectorById.get(f.toSectorId)?.name ?? "destino";
+        setLastCompleted({ ...f, progress: 1 });
         notify({
           kind: "conclusao",
           title: eqName,
-          detail: `Rota concluída em ${sectorById.get(f.toSectorId)?.name}`,
+          detail: `Rota concluída em ${dest}`,
+          severity: "info",
+        });
+        notify({
+          kind: "disponibilidade",
+          title: eqName,
+          detail: `Equipamento disponível em ${dest}`,
           severity: "info",
         });
       }
-    }, 1000);
+    }, TICK_MS);
     return () => clearInterval(t);
-  }, [notify]);
+  }, [commitRoutes, notify]);
 
   const planRoute = useCallback<SimContextValue["planRoute"]>(
     (input) => {
@@ -234,14 +341,22 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       if (candidates.length === 0)
         return { ok: false, message: "Nenhum equipamento livre para este pedido" };
 
-      let best: { e: Equipment; plan: RoutePlan } | null = null;
-      for (const e of candidates) {
-        const fromSector = sectorById.get(e.sectorId)!;
-        const plan = findRoute(fromSector.node, destination.node, blockages);
-        if (!plan) continue;
-        if (!best || plan.distance < best.plan.distance) best = { e, plan };
+      const planned = candidates
+        .map((e) => ({ e, plan: buildPlan(e, destination, blockages) }))
+        .filter((c): c is { e: Equipment; plan: RoutePlan } => c.plan !== null);
+      if (planned.length === 0)
+        return { ok: false, message: "Não foi possível calcular a rota" };
+
+      // prioriza equipamentos que precisam se deslocar; quem já está no setor não gera rota
+      const movers = planned.filter((c) => c.e.sectorId !== destination.id);
+      if (movers.length === 0) {
+        const name = planned[0]!.e.name;
+        return {
+          ok: false,
+          message: `${name} já está em ${destination.name}. Escolha outro destino ou equipamento.`,
+        };
       }
-      if (!best) return { ok: false, message: "Não foi possível calcular a rota" };
+      const best = movers.reduce((a, b) => (b.plan.distance < a.plan.distance ? b : a));
 
       if (best.plan.blocked) {
         notify({
@@ -260,6 +375,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         notes: input.notes,
         plan: best.plan,
       });
+      setLastCompleted(null);
       return { ok: true };
     },
     [equipment, blockages, notify],
@@ -268,69 +384,91 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const startRoute = useCallback(() => {
     if (!suggestion) return null;
     const id = uid("r");
-    setActiveRoutes((prev) => [...prev, { ...suggestion, id, progress: 0 }]);
+    const route: ActiveRoute = {
+      ...suggestion,
+      id,
+      progress: 0,
+      durationMs: durationFor(suggestion.plan),
+      background: false,
+    };
+    commitRoutes([...routesRef.current, route]);
     setEquipment((prev) =>
       prev.map((e) =>
         e.id === suggestion.equipmentId
-          ? { ...e, status: "em-uso" as EquipmentStatus, operator: "Operador de plantão" }
+          ? {
+              ...e,
+              status: "em-uso" as EquipmentStatus,
+              operator: "Operador de plantão",
+              heading: headingAt(suggestion.plan.points, 0),
+            }
           : e,
       ),
     );
+    setFocusRouteId(id);
+    setLastCompleted(null);
     setSuggestion(null);
     return id;
-  }, [suggestion]);
+  }, [suggestion, commitRoutes]);
 
-  const cancelRoute = useCallback((id: string) => {
-    setActiveRoutes((prev) => {
-      const r = prev.find((x) => x.id === id);
-      if (r) {
-        setEquipment((eqs) =>
-          eqs.map((e) => {
-            if (e.id !== r.equipmentId) return e;
-            const p = spotInSector(r.fromSectorId, e.id);
-            return {
-              ...e,
-              status: "livre" as EquipmentStatus,
-              operator: "Não alocado",
-              x: p.x,
-              y: p.y,
-            };
-          }),
+  const cancelRoute = useCallback(
+    (id: string) => {
+      const r = routesRef.current.find((x) => x.id === id);
+      commitRoutes(routesRef.current.filter((x) => x.id !== id));
+      if (!r) return;
+      setEquipment((eqs) => {
+        const moving = new Set(routesRef.current.map((x) => x.equipmentId));
+        const reset = eqs.map((e) =>
+          e.id === r.equipmentId
+            ? {
+                ...e,
+                status: "livre" as EquipmentStatus,
+                operator: "Não alocado",
+                sectorId: r.fromSectorId,
+                heading: undefined,
+              }
+            : e,
         );
-      }
-      return prev.filter((x) => x.id !== id);
-    });
-  }, []);
+        return layoutIdle(reset, moving);
+      });
+      setFocusRouteId((f) => (f === id ? null : f));
+    },
+    [commitRoutes],
+  );
 
-  const value = useMemo<SimContextValue>(
-    () => ({
+  const value = useMemo<SimContextValue>(() => {
+    const userRoutes = activeRoutes.filter((r) => !r.background);
+    const focusRoute =
+      activeRoutes.find((r) => r.id === focusRouteId) ?? userRoutes[userRoutes.length - 1];
+    return {
       equipment,
       blockages,
       notifications,
       maintenance,
       activeRoutes,
       suggestion,
+      focusRoute,
+      lastCompleted,
       planRoute,
       startRoute,
       cancelRoute,
       clearSuggestion: () => setSuggestion(null),
-      markAllRead: () =>
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))),
-      routeOf: (equipmentId: string) =>
-        activeRoutes.find((r) => r.equipmentId === equipmentId),
-    }),
-    [
-      equipment,
-      blockages,
-      notifications,
-      maintenance,
-      activeRoutes,
-      suggestion,
-      planRoute,
-      startRoute,
-      cancelRoute,
-    ],
-  );
+      dismissCompleted: () => setLastCompleted(null),
+      markAllRead: () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))),
+      routeOf: (equipmentId: string) => activeRoutes.find((r) => r.equipmentId === equipmentId),
+    };
+  }, [
+    equipment,
+    blockages,
+    notifications,
+    maintenance,
+    activeRoutes,
+    suggestion,
+    focusRouteId,
+    lastCompleted,
+    planRoute,
+    startRoute,
+    cancelRoute,
+  ]);
 
   return <SimContext.Provider value={value}>{children}</SimContext.Provider>;
 }
