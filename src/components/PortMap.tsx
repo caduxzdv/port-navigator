@@ -8,7 +8,9 @@ import {
   sectors,
   type Equipment,
   type EquipmentStatus,
+  type SectorKind,
 } from "@/lib/port-data";
+import { EquipmentIcon } from "@/components/EquipmentIcon";
 import { useSim } from "@/lib/simulation";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,16 @@ const statusColor: Record<EquipmentStatus, string> = {
   manutencao: "var(--danger)",
 };
 
+const sectorFill: Record<SectorKind, string> = {
+  cais: "oklch(0.26 0.045 245)",
+  patio: "oklch(0.235 0.02 95)",
+  armazem: "oklch(0.235 0.012 250)",
+  descarga: "oklch(0.245 0.03 70)",
+  conteineres: "oklch(0.24 0.035 160)",
+  oficina: "oklch(0.25 0.05 25)",
+  portaria: "oklch(0.24 0.02 300)",
+};
+
 interface Props {
   className?: string;
   routePoints?: { x: number; y: number }[];
@@ -25,6 +37,8 @@ interface Props {
   highlightEquipmentId?: string;
   statusFilter?: EquipmentStatus | "todos";
   showControls?: boolean;
+  /** desenha também todas as rotas em andamento, em tom discreto */
+  showActiveRoutes?: boolean;
   onSelectEquipment?: (e: Equipment) => void;
 }
 
@@ -37,9 +51,10 @@ export function PortMap({
   highlightEquipmentId,
   statusFilter = "todos",
   showControls = true,
+  showActiveRoutes = false,
   onSelectEquipment,
 }: Props) {
-  const { equipment, blockages } = useSim();
+  const { equipment, blockages, activeRoutes } = useSim();
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ z: 1, x: 0, y: 0 });
   const viewRef = useRef(view);
@@ -50,11 +65,7 @@ export function PortMap({
     const v = viewRef.current;
     const next = clamp(v.z * factor, 0.6, 4);
     const k = next / v.z;
-    setView({
-      z: next,
-      x: px - (px - v.x) * k,
-      y: py - (py - v.y) * k,
-    });
+    setView({ z: next, x: px - (px - v.x) * k, y: py - (py - v.y) * k });
   }, []);
 
   useEffect(() => {
@@ -85,6 +96,9 @@ export function PortMap({
     a: nodeById.get(b.a)!,
     b2: nodeById.get(b.b)!,
   }));
+
+  const ghostRoutes = showActiveRoutes ? activeRoutes : [];
+  const dest = routePoints?.[routePoints.length - 1];
 
   return (
     <div
@@ -117,18 +131,34 @@ export function PortMap({
             <rect width="26" height="26" fill="oklch(0.24 0.05 245)" />
             <path
               d="M0 13 q6.5 -5 13 0 t13 0"
-              stroke="oklch(0.3 0.06 245)"
+              stroke="oklch(0.32 0.07 245)"
               fill="none"
               strokeWidth="1.4"
             />
           </pattern>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path
+              d="M40 0 H0 V40"
+              fill="none"
+              stroke="oklch(0.18 0.006 260)"
+              strokeWidth="1"
+            />
+          </pattern>
+          <filter id="routeGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
         <g
           transform={`translate(${view.x} ${view.y}) scale(${view.z})`}
           style={{ transition: drag.current ? "none" : "transform 120ms ease-out" }}
         >
           <rect width={MAP_W} height={MAP_H} fill="var(--panel)" />
-          <rect width={MAP_W} height="24" fill="url(#water)" />
+          <rect width={MAP_W} height={MAP_H} fill="url(#grid)" />
+          <rect width={MAP_W} height="26" fill="url(#water)" />
           <rect y={MAP_H - 30} width={MAP_W} height="30" fill="url(#water)" />
 
           {/* vias internas */}
@@ -142,8 +172,8 @@ export function PortMap({
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke="oklch(0.3 0.008 260)"
-                strokeWidth="16"
+                stroke="oklch(0.28 0.008 260)"
+                strokeWidth="18"
                 strokeLinecap="round"
               />
             );
@@ -158,9 +188,9 @@ export function PortMap({
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke="oklch(0.42 0.01 260)"
-                strokeWidth="1.5"
-                strokeDasharray="10 12"
+                stroke="oklch(0.45 0.01 260)"
+                strokeWidth="1.6"
+                strokeDasharray="10 14"
               />
             );
           })}
@@ -173,21 +203,46 @@ export function PortMap({
                 y={s.y}
                 width={s.w}
                 height={s.h}
-                rx="14"
-                fill="oklch(0.23 0.012 250)"
-                stroke="oklch(0.36 0.02 250)"
+                rx="16"
+                fill={sectorFill[s.kind]}
+                stroke="oklch(0.42 0.02 250)"
                 strokeWidth="1.5"
+              />
+              <rect
+                x={s.x}
+                y={s.y}
+                width={s.w}
+                height="26"
+                rx="13"
+                fill="oklch(0.18 0.01 250)"
+                opacity="0.75"
               />
               <text
                 x={s.x + 12}
-                y={s.y + 24}
-                fill="oklch(0.78 0.02 250)"
-                fontSize="15"
-                fontWeight="600"
+                y={s.y + 18}
+                fill="oklch(0.86 0.02 250)"
+                fontSize="13"
+                fontWeight="700"
+                letterSpacing="0.4"
               >
-                {s.name}
+                {s.name.toUpperCase()}
               </text>
             </g>
+          ))}
+
+          {/* rotas em andamento (fundo) */}
+          {ghostRoutes.map((r) => (
+            <polyline
+              key={r.id}
+              points={r.plan.points.map((p) => `${p.x},${p.y}`).join(" ")}
+              fill="none"
+              stroke="var(--free)"
+              strokeOpacity="0.28"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="14 12"
+            />
           ))}
 
           {/* bloqueios */}
@@ -199,69 +254,71 @@ export function PortMap({
                 x2={b.b2.x}
                 y2={b.b2.y}
                 stroke="var(--danger)"
-                strokeWidth="8"
+                strokeWidth="10"
                 strokeDasharray="14 10"
-                opacity="0.85"
+                opacity="0.9"
               />
-              <circle
-                cx={(b.a.x + b.b2.x) / 2}
-                cy={(b.a.y + b.b2.y) / 2}
-                r="13"
-                fill="var(--danger)"
-              />
-              <text
-                x={(b.a.x + b.b2.x) / 2}
-                y={(b.a.y + b.b2.y) / 2 + 6}
-                textAnchor="middle"
-                fontSize="17"
-                fontWeight="700"
-                fill="oklch(0.16 0.006 260)"
-              >
-                !
-              </text>
+              <g transform={`translate(${(b.a.x + b.b2.x) / 2} ${(b.a.y + b.b2.y) / 2})`}>
+                <rect
+                  x="-46"
+                  y="-13"
+                  width="92"
+                  height="26"
+                  rx="13"
+                  fill="var(--danger)"
+                />
+                <text
+                  textAnchor="middle"
+                  y="5"
+                  fontSize="12"
+                  fontWeight="800"
+                  fill="oklch(0.16 0.006 260)"
+                >
+                  BLOQUEADO
+                </text>
+              </g>
             </g>
           ))}
 
-          {/* rota */}
+          {/* rota em destaque */}
           {routePoints && routePoints.length > 1 && (
-            <polyline
-              points={routePoints.map((p) => `${p.x},${p.y}`).join(" ")}
-              fill="none"
-              stroke={routeBlocked ? "var(--busy)" : "var(--free)"}
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray="18 12"
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                from="30"
-                to="0"
-                dur="0.9s"
-                repeatCount="indefinite"
-              />
-            </polyline>
+            <g filter="url(#routeGlow)">
+              <polyline
+                points={routePoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                fill="none"
+                stroke={routeBlocked ? "var(--busy)" : "var(--free)"}
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray="20 14"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="34"
+                  to="0"
+                  dur="0.9s"
+                  repeatCount="indefinite"
+                />
+              </polyline>
+            </g>
           )}
-          {routePoints && routePoints.length > 1 && (
+          {routePoints && routePoints.length > 1 && dest && (
             <>
-              <circle
-                cx={routePoints[0]!.x}
-                cy={routePoints[0]!.y}
-                r="10"
-                fill="var(--free)"
-              />
-              <circle
-                cx={routePoints[routePoints.length - 1]!.x}
-                cy={routePoints[routePoints.length - 1]!.y}
-                r="10"
-                fill="var(--gold)"
-              />
+              <circle cx={routePoints[0]!.x} cy={routePoints[0]!.y} r="9" fill="var(--free)" />
+              <g transform={`translate(${dest.x} ${dest.y})`}>
+                <path
+                  d="M0 6 C -12 -8 -11 -22 0 -22 C 11 -22 12 -8 0 6 Z"
+                  fill="var(--gold)"
+                />
+                <circle cy="-14" r="4.5" fill="oklch(0.16 0.006 260)" />
+              </g>
             </>
           )}
 
           {/* equipamentos */}
           {visible.map((e) => {
             const active = e.id === highlightEquipmentId;
+            const color = statusColor[e.status];
             return (
               <g
                 key={e.id}
@@ -270,35 +327,58 @@ export function PortMap({
                 className={onSelectEquipment ? "cursor-pointer" : undefined}
               >
                 {active && (
-                  <circle r="26" fill="none" stroke={statusColor[e.status]} strokeWidth="2">
+                  <circle r="26" fill="none" stroke={color} strokeWidth="2">
                     <animate
                       attributeName="r"
-                      values="20;30;20"
+                      values="20;32;20"
                       dur="1.6s"
                       repeatCount="indefinite"
                     />
                   </circle>
                 )}
                 <rect
-                  x="-17"
-                  y="-17"
-                  width="34"
-                  height="34"
-                  rx="10"
-                  fill="oklch(0.18 0.006 260)"
-                  stroke={statusColor[e.status]}
+                  x="-18"
+                  y="-18"
+                  width="36"
+                  height="36"
+                  rx="11"
+                  fill="oklch(0.17 0.006 260)"
+                  stroke={color}
                   strokeWidth="2.5"
                 />
-                <circle r="6" fill={statusColor[e.status]} />
-                <text
-                  y="30"
-                  textAnchor="middle"
-                  fontSize="12"
-                  fontWeight="600"
-                  fill="oklch(0.85 0.01 250)"
-                >
-                  {e.name}
-                </text>
+                <g transform="translate(-10 -10)" color={color}>
+                  <EquipmentIcon type={e.type} className="h-5 w-5" />
+                </g>
+                {e.heading !== undefined && (
+                  <circle cx="14" cy="-14" r="4" fill="var(--free)">
+                    <animate
+                      attributeName="opacity"
+                      values="1;0.2;1"
+                      dur="1s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                )}
+                <g transform="translate(0 32)">
+                  <rect
+                    x={-(e.name.length * 3.4 + 8)}
+                    y="-11"
+                    width={e.name.length * 6.8 + 16}
+                    height="18"
+                    rx="9"
+                    fill="oklch(0.14 0.006 260)"
+                    opacity="0.85"
+                  />
+                  <text
+                    textAnchor="middle"
+                    y="2"
+                    fontSize="11"
+                    fontWeight="600"
+                    fill="oklch(0.88 0.01 250)"
+                  >
+                    {e.name}
+                  </text>
+                </g>
               </g>
             );
           })}

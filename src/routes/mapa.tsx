@@ -29,11 +29,12 @@ export const Route = createFileRoute("/mapa")({
 const filters: (EquipmentStatus | "todos")[] = ["todos", "livre", "em-uso", "manutencao"];
 
 function MapaPage() {
-  const { activeRoutes, blockages, equipment } = useSim();
+  const { blockages, equipment, focusRoute } = useSim();
   const [filter, setFilter] = useState<EquipmentStatus | "todos">("todos");
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
-  const route = activeRoutes[0];
+  const route = focusRoute;
+
 
   return (
     <AppShell title="Mapa Interno">
@@ -58,10 +59,12 @@ function MapaPage() {
           <PortMap
             className="h-[420px] sm:h-[560px]"
             statusFilter={filter}
+            showActiveRoutes
             {...(route ? { routePoints: route.plan.points, routeBlocked: route.plan.blocked } : {})}
             {...(selected ? { highlightEquipmentId: selected } : {})}
             onSelectEquipment={(e) => setSelected(e.id)}
           />
+
           <p className="mt-2 text-xs text-muted-foreground">
             Arraste para mover, use a roda do mouse ou os botões para aproximar. Toque em um
             equipamento para destacá-lo.
