@@ -29,11 +29,12 @@ export const Route = createFileRoute("/mapa")({
 const filters: (EquipmentStatus | "todos")[] = ["todos", "livre", "em-uso", "manutencao"];
 
 function MapaPage() {
-  const { activeRoutes, blockages, equipment } = useSim();
+  const { blockages, equipment, focusRoute } = useSim();
   const [filter, setFilter] = useState<EquipmentStatus | "todos">("todos");
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
-  const route = activeRoutes[0];
+  const route = focusRoute;
+
 
   return (
     <AppShell title="Mapa Interno">
