@@ -59,10 +59,12 @@ function MapaPage() {
           <PortMap
             className="h-[420px] sm:h-[560px]"
             statusFilter={filter}
+            showActiveRoutes
             {...(route ? { routePoints: route.plan.points, routeBlocked: route.plan.blocked } : {})}
             {...(selected ? { highlightEquipmentId: selected } : {})}
             onSelectEquipment={(e) => setSelected(e.id)}
           />
+
           <p className="mt-2 text-xs text-muted-foreground">
             Arraste para mover, use a roda do mouse ou os botões para aproximar. Toque em um
             equipamento para destacá-lo.
