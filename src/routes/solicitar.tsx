@@ -38,8 +38,21 @@ function SolicitarPage() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // mantém o equipamento vindo da tela de detalhes sempre selecionado
+  useEffect(() => {
+    if (equipamento) {
+      setEquipId(equipamento);
+      setType("todos");
+      setError(null);
+    }
+  }, [equipamento]);
+
+  const preselected = equipamento ? equipment.find((e) => e.id === equipamento) : undefined;
+
   const options = equipment.filter(
-    (e) => e.status === "livre" && (type === "todos" || e.type === type),
+    (e) =>
+      (e.status === "livre" || e.id === equipamento) &&
+      (type === "todos" || e.type === type),
   );
 
   const submit = () => {
