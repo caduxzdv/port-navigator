@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Panel } from "@/components/bits";
 import { activities, equipmentTypes, sectors } from "@/lib/port-data";
@@ -38,8 +38,21 @@ function SolicitarPage() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // mantém o equipamento vindo da tela de detalhes sempre selecionado
+  useEffect(() => {
+    if (equipamento) {
+      setEquipId(equipamento);
+      setType("todos");
+      setError(null);
+    }
+  }, [equipamento]);
+
+  const preselected = equipamento ? equipment.find((e) => e.id === equipamento) : undefined;
+
   const options = equipment.filter(
-    (e) => e.status === "livre" && (type === "todos" || e.type === type),
+    (e) =>
+      (e.status === "livre" || e.id === equipamento) &&
+      (type === "todos" || e.type === type),
   );
 
   const submit = () => {
@@ -62,6 +75,12 @@ function SolicitarPage() {
     <AppShell title="Solicitar Rota">
       <Panel className="mx-auto max-w-2xl">
         <div className="grid gap-4">
+          {preselected && (
+            <p className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2.5 text-sm">
+              <span className="font-semibold text-primary">{preselected.name}</span> selecionado.
+              Escolha o destino e toque em “Calcular melhor rota”.
+            </p>
+          )}
           <Field label="Tipo de equipamento">
             <select
               value={type}
