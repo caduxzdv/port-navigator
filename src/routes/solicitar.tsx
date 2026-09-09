@@ -75,6 +75,12 @@ function SolicitarPage() {
     <AppShell title="Solicitar Rota">
       <Panel className="mx-auto max-w-2xl">
         <div className="grid gap-4">
+          {preselected && (
+            <p className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2.5 text-sm">
+              <span className="font-semibold text-primary">{preselected.name}</span> selecionado.
+              Escolha o destino e toque em “Calcular melhor rota”.
+            </p>
+          )}
           <Field label="Tipo de equipamento">
             <select
               value={type}
