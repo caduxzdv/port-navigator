@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Panel } from "@/components/bits";
 import { activities, equipmentTypes, sectors } from "@/lib/port-data";
