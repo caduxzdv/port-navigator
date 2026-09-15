@@ -16,7 +16,7 @@ import { Panel, Stat, StatusPill } from "@/components/bits";
 import { PortMap } from "@/components/PortMap";
 import { sectorById } from "@/lib/port-data";
 import { useSim } from "@/lib/simulation";
-import logo from "@/assets/inovalog-logo-dark.png.asset.json";
+import logo from "@/assets/inovalog-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,7 +52,7 @@ function Dashboard() {
           <Panel className="bg-gradient-to-br from-card to-secondary/30">
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
               <img
-                src={logo.url}
+                src={logo}
                 alt="InovaLog"
                 className="h-14 w-14 shrink-0 rounded-xl object-contain"
               />
