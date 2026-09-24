@@ -16,7 +16,7 @@ import { Panel, Stat, StatusPill } from "@/components/bits";
 import { PortMap } from "@/components/PortMap";
 import { sectorById } from "@/lib/port-data";
 import { useSim } from "@/lib/simulation";
-import logo from "@/assets/inovalog-logo-dark.png.asset.json";
+import logo from "@/assets/inovalog-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,12 +47,12 @@ function Dashboard() {
 
   return (
     <AppShell title="Dashboard">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="grid gap-4">
           <Panel className="bg-gradient-to-br from-card to-secondary/30">
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
               <img
-                src={logo.url}
+                src={logo}
                 alt="InovaLog"
                 className="h-14 w-14 shrink-0 rounded-xl object-contain"
               />
@@ -181,7 +181,7 @@ function Dashboard() {
                     <li key={r.id}>
                       <Link
                         to="/rota"
-                        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5"
+                        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5 transition-colors hover:bg-secondary/70"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">{e.name}</p>
@@ -223,21 +223,21 @@ function Dashboard() {
             <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/relatorios"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <BarChart3 className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Relatórios</span>
               </Link>
               <Link
                 to="/manutencoes"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <Wrench className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Manutenções</span>
               </Link>
               <Link
                 to="/notificacoes"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <Bell className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Notificações</span>
@@ -245,21 +245,21 @@ function Dashboard() {
               <Link
                 to="/solicitar"
                 search={{ equipamento: undefined }}
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <Navigation className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Solicitar rota</span>
               </Link>
               <Link
                 to="/equipamentos"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <Truck className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Equipamentos</span>
               </Link>
               <Link
                 to="/mapa"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm transition-colors hover:bg-secondary/70"
               >
                 <MapIcon className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Mapa interno</span>

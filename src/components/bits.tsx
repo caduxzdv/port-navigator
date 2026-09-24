@@ -15,7 +15,7 @@ export function Panel({
 }) {
   return (
     <section
-      className={cn("rounded-2xl border border-border bg-card p-4", className)}
+      className={cn("rounded-2xl border border-border bg-card p-4 shadow-sm shadow-black/20", className)}
     >
       {(title || action) && (
         <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">

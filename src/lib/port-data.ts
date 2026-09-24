@@ -197,7 +197,7 @@ export const initialEquipment: Equipment[] = [
   eq("pa-01", "Pá Carregadeira 01", "Pá Carregadeira", "livre", "patio-brita", 100, 340, "PCL-2201", "3,2 m³", "Não alocado", "28/09/2026"),
   eq("pa-02", "Pá Carregadeira 02", "Pá Carregadeira", "manutencao", "oficina", 30, 512, "PCL-2202", "3,2 m³", "Não alocado", "06/09/2026"),
   eq("gui-01", "Guindaste 01", "Guindaste", "manutencao", "oficina", 12, 780, "GDT-3301", "40 t", "Não alocado", "08/09/2026"),
-  eq("gui-02", "Guindaste 02", "Guindaste", "em-uso", "cais-norte", 74, 640, "GDT-3302", "50 t", "Rafael Torres", "18/10/2026"),
+  eq("gui-02", "Guindaste 02", "Guindaste", "livre", "cais-norte", 74, 640, "GDT-3302", "50 t", "Não alocado", "18/10/2026"),
   eq("emp-01", "Empilhadeira 01", "Empilhadeira", "livre", "armazem-1", 90, 220, "EMP-4401", "2,5 t", "Não alocado", "12/10/2026"),
   eq("emp-02", "Empilhadeira 02", "Empilhadeira", "em-uso", "armazem-2", 18, 305, "EMP-4402", "3 t", "Carla Nunes", "25/09/2026"),
   eq("tra-01", "Trator 01", "Trator", "livre", "patio-brita", 68, 410, "TRA-5501", "—", "Não alocado", "02/11/2026"),
