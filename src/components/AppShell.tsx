@@ -39,8 +39,11 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed top-0 bottom-0 left-0 hidden w-60 flex-col border-r border-border bg-sidebar p-4 lg:flex">
-        <Link to="/" className="mb-6 block overflow-hidden rounded-xl px-1 py-2">
-          <img src="/inovalog-logo.png" alt="InovaLog Logística & Inovação" className="w-full object-contain" />
+        <Link to="/" className="mb-6 block px-2 py-2">
+          <span className="text-xl font-extrabold tracking-tight">
+            <span className="text-foreground">INOVA</span>
+            <span className="text-primary">LOG</span>
+          </span>
         </Link>
         <nav className="flex flex-col gap-1">
           {navItems.map((item) => (
@@ -71,7 +74,7 @@ export function AppShell({
             <img
               src="/inovalog-logo.png"
               alt="InovaLog"
-              className="h-9 w-9 shrink-0 rounded-lg object-contain lg:hidden"
+              className="h-9 w-auto max-w-[120px] shrink-0 object-contain"
             />
             <div className="min-w-0">
               {back && (

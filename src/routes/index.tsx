@@ -48,21 +48,8 @@ function Dashboard() {
     <AppShell title="Dashboard">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="grid gap-4">
-          <Panel className="bg-gradient-to-br from-card to-secondary/30">
-            <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-              <img
-                src="/inovalog-logo.png"
-                alt="InovaLog"
-                className="h-14 w-14 shrink-0 rounded-xl object-contain"
-              />
-              <div className="min-w-0">
-                <p className="truncate text-lg font-bold">InovaLog</p>
-                <p className="truncate text-sm text-muted-foreground">
-                  Visão geral da operação
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <Panel title="Visão geral da operação" className="bg-gradient-to-br from-card to-secondary/30">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Stat label="Equipamentos" value={total} hint="Total" />
               <Stat label="Em uso" value={emUso} hint={pct(emUso)} tone="busy" />
               <Stat label="Disponíveis" value={livres} hint={pct(livres)} tone="free" />
