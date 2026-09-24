@@ -35,7 +35,6 @@ function SolicitarPage() {
   const [equipId, setEquipId] = useState(equipamento ?? "auto");
   const [dest, setDest] = useState(sectors[5]!.id);
   const [activity, setActivity] = useState(activities[0]!);
-  const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   // mantém o equipamento vindo da tela de detalhes sempre selecionado
@@ -61,7 +60,6 @@ function SolicitarPage() {
       ...(type !== "todos" ? { type } : {}),
       toSectorId: dest,
       activity,
-      notes,
     });
     if (!res.ok) {
       setError(res.message ?? "Não foi possível atender à solicitação");
@@ -140,16 +138,6 @@ function SolicitarPage() {
                 </option>
               ))}
             </select>
-          </Field>
-
-          <Field label="Observações">
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder="Informações adicionais para o operador"
-              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm outline-none"
-            />
           </Field>
 
           {error && (
