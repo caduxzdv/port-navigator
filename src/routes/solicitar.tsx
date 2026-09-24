@@ -86,11 +86,11 @@ function SolicitarPage() {
                 setType(e.target.value);
                 setEquipId("auto");
               }}
-              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm text-foreground transition-colors [color-scheme:dark] hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
-              <option value="todos">Qualquer tipo</option>
+              <option value="todos" className="bg-sidebar text-foreground">Qualquer tipo</option>
               {equipmentTypes.map((t) => (
-                <option key={t} value={t}>
+                <option key={t} value={t} className="bg-sidebar text-foreground">
                   {t}
                 </option>
               ))}
@@ -101,11 +101,11 @@ function SolicitarPage() {
             <select
               value={equipId}
               onChange={(e) => setEquipId(e.target.value)}
-              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm text-foreground transition-colors [color-scheme:dark] hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
-              <option value="auto">Escolher automaticamente o mais próximo</option>
+              <option value="auto" className="bg-sidebar text-foreground">Escolher automaticamente o mais próximo</option>
               {options.map((e) => (
-                <option key={e.id} value={e.id}>
+                <option key={e.id} value={e.id} className="bg-sidebar text-foreground">
                   {e.name} · {e.type}
                 </option>
               ))}
@@ -116,10 +116,10 @@ function SolicitarPage() {
             <select
               value={dest}
               onChange={(e) => setDest(e.target.value)}
-              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm text-foreground transition-colors [color-scheme:dark] hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {sectors.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} className="bg-sidebar text-foreground">
                   {s.name}
                 </option>
               ))}
@@ -130,10 +130,10 @@ function SolicitarPage() {
             <select
               value={activity}
               onChange={(e) => setActivity(e.target.value)}
-              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm text-foreground transition-colors [color-scheme:dark] hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {activities.map((a) => (
-                <option key={a} value={a}>
+                <option key={a} value={a} className="bg-sidebar text-foreground">
                   {a}
                 </option>
               ))}
