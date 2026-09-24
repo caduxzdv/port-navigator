@@ -46,10 +46,10 @@ function Dashboard() {
 
   return (
     <AppShell title="Dashboard">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <div className="grid gap-4">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] xl:gap-5">
+        <div className="grid gap-4 xl:gap-5">
           <Panel title="Visão geral da operação" className="bg-gradient-to-br from-card to-secondary/30">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
               <Stat label="Equipamentos" value={total} hint="Total" />
               <Stat label="Em uso" value={emUso} hint={pct(emUso)} tone="busy" />
               <Stat label="Disponíveis" value={livres} hint={pct(livres)} tone="free" />
@@ -67,7 +67,7 @@ function Dashboard() {
                 ].map((a) => (
                   <li
                     key={a.label}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5 ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/60"
                   >
                     <span className="flex min-w-0 items-center gap-2 text-sm">
                       <a.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -91,7 +91,7 @@ function Dashboard() {
                 {notifications.slice(0, 3).map((n) => (
                   <li
                     key={n.id}
-                    className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5"
+                    className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5 ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/60"
                   >
                     <AlertTriangle
                       className={
@@ -167,7 +167,7 @@ function Dashboard() {
                     <li key={r.id}>
                       <Link
                         to="/rota"
-                        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5"
+                        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2.5 ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/60"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">{e.name}</p>
@@ -191,7 +191,7 @@ function Dashboard() {
               {equipment.slice(0, 5).map((e) => (
                 <li
                   key={e.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary/40 px-3 py-2 ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/60"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm">{e.name}</p>
@@ -206,24 +206,24 @@ function Dashboard() {
           </Panel>
 
           <Panel title="Acessos rápidos">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <Link
                 to="/relatorios"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <BarChart3 className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Relatórios</span>
               </Link>
               <Link
                 to="/manutencoes"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <Wrench className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Manutenções</span>
               </Link>
               <Link
                 to="/notificacoes"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <Bell className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Notificações</span>
@@ -231,21 +231,21 @@ function Dashboard() {
               <Link
                 to="/solicitar"
                 search={{ equipamento: undefined }}
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <Navigation className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Solicitar rota</span>
               </Link>
               <Link
                 to="/equipamentos"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <Truck className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Equipamentos</span>
               </Link>
               <Link
                 to="/mapa"
-                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm"
+                className="flex items-center gap-2 rounded-xl bg-secondary/40 px-3 py-3 text-sm ring-1 ring-inset ring-white/5 transition-colors hover:bg-secondary/70 hover:text-primary"
               >
                 <MapIcon className="h-4 w-4 shrink-0 text-primary" />
                 <span className="truncate">Mapa interno</span>
