@@ -40,7 +40,10 @@ export function AppShell({
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed top-0 bottom-0 left-0 hidden w-60 flex-col border-r border-border bg-sidebar p-4 lg:flex">
         <Link to="/" className="mb-6 block px-2 py-2">
-          <span className="text-xl font-extrabold tracking-tight">
+          <span
+            className="text-2xl font-bold tracking-[0.08em]"
+            style={{ fontFamily: '"Cinzel", serif' }}
+          >
             <span className="text-foreground">INOVA</span>
             <span className="text-primary">LOG</span>
           </span>
