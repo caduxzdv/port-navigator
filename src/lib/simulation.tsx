@@ -75,7 +75,7 @@ interface SimContextValue {
     type?: string;
     toSectorId: string;
     activity: string;
-    notes: string;
+    notes?: string;
   }) => { ok: boolean; message?: string };
   startRoute: () => string | null;
   cancelRoute: (id: string) => void;
@@ -389,7 +389,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         fromSectorId: best.e.sectorId,
         toSectorId: input.toSectorId,
         activity: input.activity,
-        notes: input.notes,
+        notes: input.notes ?? "",
         plan: best.plan,
       });
       setLastCompleted(null);
