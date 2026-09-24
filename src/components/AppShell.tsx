@@ -8,7 +8,7 @@ import {
   Truck,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import logo from "@/assets/inovalog-logo.png";
+import logo from "@/assets/inovalog-logo-dark.png.asset.json";
 import { useSim } from "@/lib/simulation";
 
 const navItems = [
@@ -41,7 +41,7 @@ export function AppShell({
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed top-0 bottom-0 left-0 hidden w-60 flex-col border-r border-border bg-sidebar p-4 lg:flex">
         <Link to="/" className="mb-6 block overflow-hidden rounded-xl px-1 py-2">
-          <img src={logo} alt="InovaLog Logística & Inovação" className="w-full object-contain" />
+          <img src={logo.url} alt="InovaLog Logística & Inovação" className="w-full object-contain" />
         </Link>
         <nav className="flex flex-col gap-1">
           {navItems.map((item) => (
@@ -70,7 +70,7 @@ export function AppShell({
         <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
           <div className="flex min-w-0 items-center gap-3">
             <img
-              src={logo}
+              src={logo.url}
               alt="InovaLog"
               className="h-9 w-9 shrink-0 rounded-lg object-contain lg:hidden"
             />
