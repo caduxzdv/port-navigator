@@ -75,7 +75,7 @@ interface SimContextValue {
     type?: string;
     toSectorId: string;
     activity: string;
-    notes: string;
+    notes?: string;
   }) => { ok: boolean; message?: string };
   startRoute: () => string | null;
   cancelRoute: (id: string) => void;
@@ -332,14 +332,31 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       const destination = sectorById.get(input.toSectorId);
       if (!destination) return { ok: false, message: "Destino inválido" };
 
-      const candidates = equipment.filter(
+      const free = equipment.filter((e) => e.status === "livre");
+      const freeCountByType = new Map<string, number>();
+      for (const e of free)
+        freeCountByType.set(e.type, (freeCountByType.get(e.type) ?? 0) + 1);
+
+      let candidates = free.filter(
         (e) =>
-          e.status === "livre" &&
           (input.equipmentId ? e.id === input.equipmentId : true) &&
           (input.type ? e.type === input.type : true),
       );
+
+      // escolha automática nunca leva a última unidade livre de um tipo:
+      // sempre sobra pelo menos 1 equipamento disponível de cada tipo
+      if (!input.equipmentId) {
+        const reservable = candidates.filter(
+          (e) => (freeCountByType.get(e.type) ?? 0) > 1,
+        );
+        if (reservable.length > 0) candidates = reservable;
+      }
+
       if (candidates.length === 0)
-        return { ok: false, message: "Nenhum equipamento livre para este pedido" };
+        return {
+          ok: false,
+          message: "Não tem transporte disponível para esta unidade.",
+        };
 
       const planned = candidates
         .map((e) => ({ e, plan: buildPlan(e, destination, blockages) }))
@@ -372,7 +389,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         fromSectorId: best.e.sectorId,
         toSectorId: input.toSectorId,
         activity: input.activity,
-        notes: input.notes,
+        notes: input.notes ?? "",
         plan: best.plan,
       });
       setLastCompleted(null);
